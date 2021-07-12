@@ -1,4 +1,4 @@
-from autoslug import AutoSlugField
+#from autoslug import AutoSlugField
 
 from django.db import models
 from django.contrib.auth import get_user_model
@@ -46,8 +46,8 @@ class Recipe(models.Model):
         verbose_name='Ингредиент'
     )
     cooking_time = models.PositiveSmallIntegerField('Время приготовления')
-    slug = AutoSlugField(populate_from='title', allow_unicode=True)
-    #slug = models.SlugField(max_length=200, unique=True)
+    #slug = AutoSlugField(populate_from='title', allow_unicode=True)
+    slug = models.SlugField(max_length=200, unique=True)
     tags = models.ManyToManyField(
         'Tag',
         related_name='recipes',
