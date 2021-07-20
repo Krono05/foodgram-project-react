@@ -1,43 +1,60 @@
 from django.contrib import admin
-from django.db.models import Count
 
-from .models import Recipe, Ingredient, Tag, RecipeIngredient
-
-
-class RecipeIngredientInline(admin.TabularInline):
-    model = RecipeIngredient
-    min_num = 1
-    extra = 0
-    verbose_name = 'ингредиент'
+from .models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                     ShoppingCart, Tag, TagsInRecipe)
 
 
-@admin.register(Recipe)
-class RecipeAdmin(admin.ModelAdmin):
-    inlines = (RecipeIngredientInline, )
-    list_display = (
-        'id', 'title', 'author', 'slug',
-        'cooking_time', 'get_favorite_count', 'pub_date'
-    )
-    list_filter = ('author', 'tags__title')
-    search_fields = ('title', 'author__username')
-    autocomplete_fields = ('author', )
-    ordering = ('-pub_date', )
-
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        return queryset.annotate(favorite_count=Count('favored_by'))
-
-    def get_favorite_count(self, obj):
-        return obj.favorite_count
-
-
-@admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('title', 'dimension')
-    search_fields = ('^title', )
-
-
-@admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('title', 'color', 'display_name')
-    list_filter = ('title', )
+    list_display = ('id', 'name', 'hexcolor', 'slug',)
+    search_fields = ('name',)
+    list_filter = ('name', 'slug')
+    empty_value_display = '---'
+
+
+class TagsInRecipeInline(admin.TabularInline):
+    model = TagsInRecipe
+    extra = 1
+
+
+class IngredientInRecipeAdminInline(admin.TabularInline):
+    model = IngredientInRecipe
+    extra = 1
+
+
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'author')
+    inlines = (IngredientInRecipeAdminInline, TagsInRecipeInline)
+    search_fields = ('author', 'name')
+    list_filter = ('author', 'name', 'tags')
+
+
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'measurement_unit')
+    list_filter = ('name', )
+
+
+class IngredientInRecipeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'ingredient', 'recipe', 'amount')
+
+
+class TagsInRecipeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'tag', 'recipe')
+
+
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'recipe', 'when_added')
+    search_fields = ('user', 'recipe')
+
+
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'recipe', 'when_added')
+    search_fields = ('user', 'recipe')
+
+
+admin.site.register(Tag, TagAdmin)
+admin.site.register(Recipe, RecipeAdmin)
+admin.site.register(Ingredient, IngredientAdmin)
+admin.site.register(IngredientInRecipe, IngredientInRecipeAdmin)
+admin.site.register(TagsInRecipe, TagsInRecipeAdmin)
+admin.site.register(Favorite, FavoriteAdmin)
+admin.site.register(ShoppingCart, ShoppingCartAdmin)

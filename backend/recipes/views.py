@@ -1,262 +1,181 @@
-import io
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status, viewsets
+from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
-from django.http import FileResponse
-from django.db.models import Count, Sum
-
-from .models import Recipe, Tag
-from .forms import RecipeForm
-from .utils import save_recipe, edit_recipe, generate_pdf
+from .filters import RecipeFilter
+from .models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                     ShoppingCart, Tag)
+from .permissions import AdminOrAuthorOrReadOnly
+from .serializers import (CreateRecipeSerializer, FavoriteSerializer,
+                          IngredientSerializer, ShoppingCartSerializer,
+                          ShowRecipeSerializer, TagSerializer)
 
 
-User = get_user_model()
-TAGS = ['breakfast', 'lunch', 'dinner']
-
-
-def index(request):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Display most recent `recipes.Recipe`, fitered with tags.
+    Describes Tag viewset, which allows only GET-method.
+    With router works as /api/tags/ to get the list of all tags
+    and /api/tags/<id> to get tag by id
+    permissions: All users can use this url.
     """
-    tags = request.GET.getlist('tag', TAGS)
-    all_tags = Tag.objects.all()
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [AllowAny, ]
 
-    recipes = Recipe.objects.filter(
-        tags__title__in=tags
-    ).select_related(
-        'author'
-    ).prefetch_related(
-        'tags'
-    ).distinct()
 
-    paginator = Paginator(recipes, settings.PAGINATION_PAGE_SIZE)
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Describes Tag viewset, which allows only GET-method.
+    With router works as /api/ingredients/ to get the list of all ingredients
+    and /api/ingredients/<id> to get ingredient by id
+    permissions: All users can use this url.
+    """
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    permission_classes = [AllowAny, ]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('name', )
 
-    return render(
-        request,
-        'recipes/index.html',
-        {
-            'page': page,
-            'paginator': paginator,
-            'tags': tags,
-            'all_tags': all_tags,
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    """
+    Describes ViewSet, which provides get/post/delete/patch methods
+    to work with recipes
+    """
+
+    queryset = Recipe.objects.all()
+    permission_classes = [AdminOrAuthorOrReadOnly, ]
+    filter_backends = [DjangoFilterBackend, ]
+    filterset_class = RecipeFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ShowRecipeSerializer
+        return CreateRecipeSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({'request': self.request})
+        return context
+
+
+class FavoriteViewSet(APIView):
+    """
+    Describes ViewSet to add and delete Favorite recipes
+    """
+
+    permission_classes = [IsAuthenticated, ]
+
+    def post(self, request, recipe_id):
+        user = request.user
+        data = {
+            "user": user.id,
+            "recipe": recipe_id,
         }
-    )
-
-
-def recipe_view_redirect(request, recipe_id):
-    """
-    Redirect to the `recipe_view_slug` page.
-    """
-    recipe = get_object_or_404(Recipe.objects.all(), id=recipe_id)
-
-    return redirect('recipe_view_slug', recipe_id=recipe.id, slug=recipe.slug)
-
-
-def recipe_view_slug(request, recipe_id, slug):
-    """
-    Display a single `recipes.Recipe`.
-    """
-    recipe = get_object_or_404(
-        Recipe.objects.select_related('author'),
-        id=recipe_id,
-        slug=slug
-    )
-
-    return render(request, 'recipes/singlePage.html', {'recipe': recipe})
-
-
-@login_required
-def recipe_new(request):
-    """
-    GET: Display a form for a new `recipes.Recipe`.
-    POST: Validate and save the form to database.
-    On successful save redirect to `recipe_view_slug` page
-    of created `recipes.Recipe`.
-    Otherwise stay on page and show validation errors.
-    """
-    form = RecipeForm(request.POST or None, files=request.FILES or None)
-    if form.is_valid():
-        recipe = save_recipe(request, form)
-
-        return redirect(
-            'recipe_view_slug', recipe_id=recipe.id, slug=recipe.slug
-        )
-
-    return render(request, 'recipes/formRecipe.html', {'form': form})
-
-
-@login_required
-def recipe_edit(request, recipe_id, slug):
-    """
-    GET: Display a form for editing of existing `recipes.Recipe`.
-    POST: Validate and save the form to database.
-    On successful save redirect to `recipe_view_slug` page
-    of created `recipes.Recipe`.
-    Otherwise stay on page and show validation errors.
-    """
-    recipe = get_object_or_404(Recipe, id=recipe_id)
-
-    if not request.user.is_superuser:
-        if request.user != recipe.author:
-            return redirect(
-                'recipe_view_slug', recipe_id=recipe.id, slug=recipe.slug
+        if Favorite.objects.filter(user=user, recipe__id=recipe_id).exists():
+            return Response(
+                {"Ошибка": "Уже в избранном"},
+                status=status.HTTP_400_BAD_REQUEST
             )
-
-    form = RecipeForm(
-        request.POST or None,
-        files=request.FILES or None,
-        instance=recipe
-    )
-    if form.is_valid():
-        edit_recipe(request, form, instance=recipe)
-        return redirect(
-            'recipe_view_slug', recipe_id=recipe.id, slug=recipe.slug
+        serializer = FavoriteSerializer(
+            data=data,
+            context={"request": request}
         )
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    return render(
-        request,
-        'recipes/formRecipe.html',
-        {'form': form, 'recipe': recipe}
-    )
+    def delete(self, request, recipe_id):
+        user = request.user
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        if not Favorite.objects.filter(user=user, recipe=recipe).exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        Favorite.objects.get(user=user, recipe=recipe).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@login_required
-def recipe_delete(request, recipe_id, slug):
+class ShoppingCartViewSet(APIView):
     """
-    Delete the given `recipes.Recipe`.
+    Describes ViewSet to add and delete recipes to/from shopping cart
     """
-    recipe = get_object_or_404(Recipe, id=recipe_id)
-    if request.user.is_superuser or request.user == recipe.author:
-        recipe.delete()
-    return redirect('index')
 
+    permission_classes = [IsAuthenticated, ]
 
-def profile_view(request, username):
-    """
-    Display all `recipes.Recipe` of a given `auth.User`, filtered with tags.
-    """
-    tags = request.GET.getlist('tag', TAGS)
-    all_tags = Tag.objects.all()
-
-    author = get_object_or_404(User, username=username)
-    author_recipes = author.recipes.filter(
-        tags__title__in=tags
-    ).prefetch_related('tags').distinct()
-
-    paginator = Paginator(author_recipes, settings.PAGINATION_PAGE_SIZE)
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
-
-    return render(
-        request,
-        'recipes/authorRecipe.html',
-        {
-            'author': author,
-            'page': page,
-            'paginator': paginator,
-            'tags': tags,
-            'all_tags': all_tags,
+    def get(self, request, recipe_id):
+        user = request.user
+        data = {
+            "user": user.id,
+            "recipe": recipe_id,
         }
-    )
+        shopping_cart_exist = ShoppingCart.objects.filter(
+            user=user,
+            recipe__id=recipe_id
+        ).exists()
+        if shopping_cart_exist:
+            return Response(
+                {"Ошибка": "Уже есть в корзине"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        context = {'request': request}
+        serializer = ShoppingCartSerializer(data=data, context=context)
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, recipe_id):
+        user = request.user
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        if not ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        ShoppingCart.objects.get(user=user, recipe=recipe).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@login_required
-def subscriptions(request):
+@api_view(['GET'])
+def download_shopping_cart(request):
     """
-    Display all `auth.User` the visitor is subscribed to,
-    each with their most recent `recipes.Recipe`.
+    Describes View-function, which allows to download a PDF file
+    listing the ingredients that are present in the recipes that
+    are added to shopping cart
+    with name, measurement units and
+    summarized amount of those ingredients.
     """
-    authors = User.objects.filter(
-        following__user=request.user
-    ).prefetch_related(
-        'recipes'
-    ).annotate(recipe_count=Count('recipes')).order_by('username')
 
-    paginator = Paginator(authors, settings.PAGINATION_PAGE_SIZE)
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
+    user = request.user
+    shopping_cart = user.shopping_cart.all()
+    buying_list = {}
+    for record in shopping_cart:
+        recipe = record.recipe
+        ingredients = IngredientInRecipe.objects.filter(recipe=recipe)
+        for ingredient in ingredients:
+            amount = ingredient.amount
+            name = ingredient.ingredient.name
+            measurement_unit = ingredient.ingredient.measurement_unit
+            if name not in buying_list:
+                buying_list[name] = {
+                    'measurement_unit': measurement_unit,
+                    'amount': amount
+                }
+            else:
+                buying_list[name]['amount'] = (buying_list[name]['amount']
+                                               + amount)
+    wishlist=[]
+    for name, data in buying_list.items():
+        wishlist.append(f"{name} - {data['amount']} ({data['measurement_unit']}) \n")
+    response = HttpResponse(wishlist, content_type= 'text/plain')
+    response['Content-Disposition'] = 'attachment; filename="wishlist.txt"'
+    return response
 
-    return render(
-        request,
-        'recipes/myFollow.html',
-        {
-            'page': page,
-            'paginator': paginator,
-        }
-    )
-
-
-@login_required
-def favorites(request):
-    """
-    Display all `recipes.Recipe` that visitor had marked as favorite,
-    filtered with tags.
-    """
-    tags = request.GET.getlist('tag', TAGS)
-    all_tags = Tag.objects.all()
-
-    recipes = Recipe.objects.filter(
-        favored_by__user=request.user,
-        tags__title__in=tags
-    ).select_related(
-        'author'
-    ).prefetch_related(
-        'tags'
-    ).distinct()
-
-    paginator = Paginator(recipes, settings.PAGINATION_PAGE_SIZE)
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
-
-    return render(
-        request,
-        'recipes/favorite.html',
-        {
-            'page': page,
-            'paginator': paginator,
-            'tags': tags,
-            'all_tags': all_tags,
-        }
-    )
-
-
-@login_required
-def purchases(request):
-    """
-    Display all `recipes.Recipe` the visitor had put in their shoplist.
-    """
-    recipes = request.user.purchases.all()
-    return render(
-        request,
-        'recipes/shopList.html',
-        {'recipes': recipes},
-    )
-
-
-@login_required
-def purchases_download(request):
-    """
-    Download a list of `recipes.Ingredient` from shoplist as a PDF document.
-    """
-    ingredients = request.user.purchases.select_related(
-        'recipe'
-    ).order_by(
-        'recipe__ingredients__title'
-    ).values(
-        'recipe__ingredients__title', 'recipe__ingredients__dimension'
-    ).annotate(amount=Sum('recipe__ingredients_amounts__quantity')).all()
-
-    pdf = generate_pdf(
-        'misc/shopListPDF.html', {'ingredients': ingredients}
-    )
-
-    return FileResponse(
-        io.BytesIO(pdf),
-        filename='ingredients.pdf',
-        as_attachment=True
-    )

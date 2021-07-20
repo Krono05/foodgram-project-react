@@ -1,42 +1,30 @@
-from django.urls import path, include
+from django.conf.urls import include
+from django.urls import path
+from rest_framework.routers import DefaultRouter
 
-from . import views
+from .views import (FavoriteViewSet, IngredientViewSet, RecipeViewSet,
+                    ShoppingCartViewSet, TagViewSet, download_shopping_cart)
 
-
-recipes_urls = [
-    path('new/', views.recipe_new, name='recipe_new'),
-    path(
-        '<int:recipe_id>/<slug:slug>/edit/',
-        views.recipe_edit,
-        name='recipe_edit',
-    ),
-    path(
-        '<int:recipe_id>/<slug:slug>/delete/',
-        views.recipe_delete,
-        name='recipe_delete',
-    ),
-    path(
-        '<int:recipe_id>/<slug:slug>/',
-        views.recipe_view_slug,
-        name='recipe_view_slug',
-    ),
-    path(
-        '<int:recipe_id>/',
-        views.recipe_view_redirect,
-        name='recipe_view_redirect',
-    ),
-]
-
-purchases_urls = [
-    path('', views.purchases, name='purchases'),
-    path('download/', views.purchases_download, name='purchases_download'),
-]
+v1_router = DefaultRouter()
+v1_router.register(r'tags', TagViewSet, basename='tags')
+v1_router.register(r'ingredients', IngredientViewSet, basename='ingredients')
+v1_router.register(r'recipes', RecipeViewSet, basename='recipes')
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('subscriptions/', views.subscriptions, name='subscriptions'),
-    path('favorites/', views.favorites, name='favorites'),
-    path('purchases/', include(purchases_urls)),
-    path('recipe/', include(recipes_urls)),
-    path('<str:username>/', views.profile_view, name='profile_view'),
+    path(
+        'recipes/download_shopping_cart/',
+        download_shopping_cart,
+        name='download'
+    ),
+    path(
+        'recipes/<int:recipe_id>/favorite/',
+        FavoriteViewSet.as_view(),
+        name='favorite'
+    ),
+    path(
+        'recipes/<int:recipe_id>/shopping_cart/',
+        ShoppingCartViewSet.as_view(),
+        name='shopping_cart'
+    ),
+    path('', include(v1_router.urls)),
 ]
