@@ -7,25 +7,17 @@ User = get_user_model()
 
 
 class Tag(models.Model):
-    """Describe Tag model."""
+
     BLUE = '#0000FF'
     RED = '#FF0000'
     GREEN = '#008000'
-    LIGHT_GREEN = '#6FFF00'
-    PURPLE = '#800080'
-    TURQUOISE = '#40E0D0'
     YELLOW = '#FFFF00'
-    BROWN = '#A52A2A'
 
     COLOR_CHOICES = [
         (BLUE, 'Синий'),
         (RED, 'Красный'),
         (GREEN, 'Зелёный'),
-        (LIGHT_GREEN, 'Светло-зелёный'),
-        (PURPLE, 'Фиолетовый'),
-        (TURQUOISE, 'Бирюзовый'),
         (YELLOW, 'Жёлтый'),
-        (BROWN, 'Коричневый')
     ]
 
     name = models.CharField(
@@ -55,7 +47,6 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    """Describes Ingredient model"""
 
     name = models.CharField(
         max_length=200,
@@ -117,12 +108,7 @@ class Recipe(models.Model):
 
 
 class TagsInRecipe(models.Model):
-    """
-    Describes Tag-Recipe model, which will be used
-    by Recipe model.
-    This model is created by hand to set correct display in
-    admin panel
-    """
+
 
     tag = models.ForeignKey(
         Tag,
@@ -140,10 +126,7 @@ class TagsInRecipe(models.Model):
 
 
 class IngredientInRecipe(models.Model):
-    """
-    Describes Ingredient-Recipe model, which will be used
-    by Recipe model
-    """
+
 
     ingredient = models.ForeignKey(
         Ingredient,

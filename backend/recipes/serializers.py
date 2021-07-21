@@ -11,21 +11,21 @@ User = get_user_model()
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """Describes Tag serializer"""
+
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """Describes Ingredient serializer"""
+
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    """Describes serializer, which will be used by ShowRecipeSerializer"""
+
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -95,11 +95,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                   'name', 'image', 'text', 'cooking_time')
 
     def create(self, validated_data):
-        """
-        Only authorized users can send POST/PUT request methods
-        Explanation: recipes/permissions.py -> AdminOrAuthorOrReadOnly,
-        so author can't be None.
-        """
+
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
         author = self.context.get('request').user

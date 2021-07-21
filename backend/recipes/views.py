@@ -17,24 +17,14 @@ from .serializers import (CreateRecipeSerializer, FavoriteSerializer,
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    Describes Tag viewset, which allows only GET-method.
-    With router works as /api/tags/ to get the list of all tags
-    and /api/tags/<id> to get tag by id
-    permissions: All users can use this url.
-    """
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [AllowAny, ]
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    Describes Tag viewset, which allows only GET-method.
-    With router works as /api/ingredients/ to get the list of all ingredients
-    and /api/ingredients/<id> to get ingredient by id
-    permissions: All users can use this url.
-    """
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = [AllowAny, ]
@@ -43,10 +33,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """
-    Describes ViewSet, which provides get/post/delete/patch methods
-    to work with recipes
-    """
+
 
     queryset = Recipe.objects.all()
     permission_classes = [AdminOrAuthorOrReadOnly, ]
@@ -65,9 +52,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class FavoriteViewSet(APIView):
-    """
-    Describes ViewSet to add and delete Favorite recipes
-    """
+
 
     permission_classes = [IsAuthenticated, ]
 
@@ -104,9 +89,6 @@ class FavoriteViewSet(APIView):
 
 
 class ShoppingCartViewSet(APIView):
-    """
-    Describes ViewSet to add and delete recipes to/from shopping cart
-    """
 
     permission_classes = [IsAuthenticated, ]
 
@@ -146,13 +128,7 @@ class ShoppingCartViewSet(APIView):
 
 @api_view(['GET'])
 def download_shopping_cart(request):
-    """
-    Describes View-function, which allows to download a PDF file
-    listing the ingredients that are present in the recipes that
-    are added to shopping cart
-    with name, measurement units and
-    summarized amount of those ingredients.
-    """
+
 
     user = request.user
     shopping_cart = user.shopping_cart.all()
