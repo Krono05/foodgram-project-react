@@ -71,11 +71,7 @@ class FavoriteViewSet(APIView):
             data=data,
             context={"request": request}
         )
-        if not serializer.is_valid():
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -109,11 +105,7 @@ class ShoppingCartViewSet(APIView):
             )
         context = {'request': request}
         serializer = ShoppingCartSerializer(data=data, context=context)
-        if not serializer.is_valid():
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -154,4 +146,3 @@ def download_shopping_cart(request):
     response = HttpResponse(wishlist, content_type= 'text/plain')
     response['Content-Disposition'] = 'attachment; filename="wishlist.txt"'
     return response
-
