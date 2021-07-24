@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+
 from .filters import RecipeFilter
 from .models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                      ShoppingCart, Tag)
@@ -34,11 +35,11 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
 
-
     queryset = Recipe.objects.all()
     permission_classes = [AdminOrAuthorOrReadOnly, ]
     filter_backends = [DjangoFilterBackend, ]
     filterset_class = RecipeFilter
+
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -52,7 +53,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class FavoriteViewSet(APIView):
-
 
     permission_classes = [IsAuthenticated, ]
 
@@ -120,7 +120,6 @@ class ShoppingCartViewSet(APIView):
 
 @api_view(['GET'])
 def download_shopping_cart(request):
-
 
     user = request.user
     shopping_cart = user.shopping_cart.all()
