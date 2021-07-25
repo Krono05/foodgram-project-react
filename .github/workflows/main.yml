@@ -44,7 +44,7 @@ jobs:
         with:
           push: true
           context: ./backend/
-          tags: kedow/foodgram:latest
+          tags: tamir88/foodgram:latest
 
   deploy:
     runs-on: ubuntu-latest
