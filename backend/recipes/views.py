@@ -40,7 +40,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, ]
     filterset_class = RecipeFilter
 
-
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ShowRecipeSerializer
@@ -142,8 +141,7 @@ def download_shopping_cart(request):
     wishlist = []
     for name, data in buying_list.items():
         wishlist.append(
-            f"{name} - {data['amount']} ({data['measurement_unit']}) \n"
-            )
-    response = HttpResponse(wishlist, content_type= 'text/plain')
+            f"{name} - {data['amount']} ({data['measurement_unit']}) \n")
+    response = HttpResponse(wishlist, content_type = 'text/plain')
     response['Content-Disposition'] = 'attachment; filename="wishlist.txt"'
     return response

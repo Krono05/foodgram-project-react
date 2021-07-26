@@ -108,7 +108,6 @@ class Recipe(models.Model):
 
 class TagsInRecipe(models.Model):
 
-
     tag = models.ForeignKey(
         Tag,
         verbose_name='Тег в рецепте',
@@ -125,7 +124,6 @@ class TagsInRecipe(models.Model):
 
 
 class IngredientInRecipe(models.Model):
-
 
     ingredient = models.ForeignKey(
         Ingredient,
