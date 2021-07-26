@@ -22,7 +22,7 @@ jobs:
 
       - name: Lint with flake8
         run: |
-            cd backend/  
+ 
             flake8 .
 
   build_and_push_to_docker_hub:
@@ -71,4 +71,5 @@ jobs:
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+            cd ./infra
             sudo docker-compose up -d
