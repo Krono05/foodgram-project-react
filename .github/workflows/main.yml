@@ -87,7 +87,7 @@ jobs:
             passphrase: ${{ secrets.PASSPHRASE }}
             stack_file_name: docker-compose.yaml
             script: |
-              sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/foodgram
+              sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/backend
               sudo docker-compose stop
               sudo docker-compose rm backend
               # Создаст файл для переменных окружения
