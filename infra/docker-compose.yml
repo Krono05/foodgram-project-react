@@ -10,7 +10,7 @@ services:
     restart: always
   frontend:
     
-    image: tamir88:frontend
+    image: tamir88/frontend
 #    build:
 #     context: ../frontend
 #      dockerfile: Dockerfile
@@ -20,7 +20,7 @@ services:
     depends_on:
       - db
   backend:
-    image: tamir88:backend
+    image: tamir88/backend
 #    build:
 #      context: ../backend
 #      dockerfile: Dockerfile
