@@ -46,7 +46,7 @@ jobs:
         with:
           push: true
           context: ./backend/
-          tags: tamir88/foodgram:latest
+          tags: tamir88/backend
 
 #   deploy:
 #     runs-on: ubuntu-latest
