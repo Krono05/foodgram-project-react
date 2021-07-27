@@ -7,7 +7,7 @@ from .managers import CustomUserManager
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     """
-    Describes CustomUser model, which includes
+    Describes CustomUser models, which includes
     'first_name', 'last_name' and 'email'
     as required fields.
     """
