@@ -141,7 +141,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             context={
                 'request': self.context.get('request')
             }).data
-    
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
