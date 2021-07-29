@@ -4,13 +4,14 @@ from django.urls import path, re_path
 from .views import FollowViewSet, ListFollowViewSet
 
 urlpatterns = [
+
+    path('', include('djoser.urls')),
+    re_path(r'^auth/', include('djoser.urls.authtoken')),
     path(
         'users/subscriptions/',
         ListFollowViewSet.as_view(),
         name='subscriptions'
     ),
-    path('', include('djoser.urls')),
-    re_path(r'^auth/', include('djoser.urls.authtoken')),
     path(
         'users/<int:author_id>/subscribe/',
         FollowViewSet.as_view(),
