@@ -1,53 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
-from rest_framework.authtoken import views as auth_views
-from rest_framework.compat import coreapi, coreschema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 
 from .models import Follow
 from .serializers import FollowSerializer, MyAuthTokenSerializer
 
 User = get_user_model()
-
-
-class Logout(APIView):
-    """Logout option"""
-
-    def post(self, request):
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class MyAuthToken(auth_views.ObtainAuthToken):
-    serializer_class = MyAuthTokenSerializer
-    if coreapi is not None and coreschema is not None:
-        schema = ManualSchema(
-            fields=[
-                coreapi.Field(
-                    name="email",
-                    required=True,
-                    location='form',
-                    schema=coreschema.String(
-                        title="Email",
-                        description="Valid email for authentication",
-                    ),
-                ),
-                coreapi.Field(
-                    name="password",
-                    required=True,
-                    location='form',
-                    schema=coreschema.String(
-                        title="Password",
-                        description="Valid password for authentication",
-                    ),
-                ),
-            ],
-            encoding="application/json",
-        )
 
 
 class ListFollowViewSet(generics.ListAPIView):
@@ -98,5 +59,3 @@ class FollowViewSet(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-logout = Logout.as_view()
-obtain_auth_token = MyAuthToken.as_view()
