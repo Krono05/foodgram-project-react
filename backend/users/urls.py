@@ -11,8 +11,6 @@ urlpatterns = [
     ),
     path('', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.authtoken')),
-    #path('auth/token/login/', obtain_auth_token, name='login'),
-    #path('auth/token/logout/', logout, name='logout'),
     path(
         'users/<int:author_id>/subscribe/',
         FollowViewSet.as_view(),
