@@ -72,7 +72,7 @@ class FollowViewSet(APIView):
     """
     permission_classes = [IsAuthenticated, ]
 
-    def post(self, request, author_id):
+    def get(self, request, author_id):
         user = request.user
         follow_exist = Follow.objects.filter(
             user=user,
