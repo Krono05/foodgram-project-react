@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Follow
-from .serializers import FollowSerializer, MyAuthTokenSerializer
+from .serializers import FollowSerializer
 
 User = get_user_model()
 
@@ -57,5 +57,3 @@ class FollowViewSet(APIView):
         obj = get_object_or_404(Follow, user=request.user, author=author_id)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
