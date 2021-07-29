@@ -54,7 +54,7 @@ class FavoriteViewSet(APIView):
 
     permission_classes = [IsAuthenticated, ]
 
-    def post(self, request, recipe_id):
+    def get(self, request, recipe_id):
         user = request.user
         data = {
             "user": user.id,
