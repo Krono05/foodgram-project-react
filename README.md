@@ -16,7 +16,7 @@ git clone https://github.com/Krono05/foodgram-project-react
 - [Установите Докер](https://docs.docker.com/engine/install/)
 - Выполнить команду: 
 ```bash
-docker pull Krono05/foodgram-project-react :latest
+docker pull tamir88/foodgram-project-react :latest
 ```
 #### Первоначальная настройка Django:
 ```bash
