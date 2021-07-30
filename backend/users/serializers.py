@@ -5,7 +5,7 @@ from rest_framework import serializers
 from foodgram.settings import RECIPES_LIMIT
 from recipes.models import Recipe
 
-from .models import Follow, CustomUser
+from .models import CustomUser, Follow
 
 User = get_user_model()
 
