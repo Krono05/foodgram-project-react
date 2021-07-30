@@ -11,19 +11,12 @@ services:
   frontend:
     
     image: tamir88/frontend
-#    build:
-#     context: ../frontend
-#      dockerfile: Dockerfile
     volumes:
       - result_build:/build
-#      - ../frontend/:/app/result_build/
     depends_on:
       - db
   backend:
     image: tamir88/backend
-#    build:
-#      context: ../backend
-#      dockerfile: Dockerfile
     restart: always
     volumes:
       - static_value:/code/static/
