@@ -5,14 +5,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Follow
+from .models import CustomUser, Follow
 from .serializers import FollowSerializer
 
 User = get_user_model()
 
 
 class ListFollowViewSet(generics.ListAPIView):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     permission_classes = [IsAuthenticated, ]
     serializer_class = FollowSerializer
 
