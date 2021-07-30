@@ -1,6 +1,6 @@
 import django_filters as filters
 
-from .models import Recipe, Ingredient
+from .models import Ingredient, Recipe 
 
 
 class RecipeFilter(filters.FilterSet):
@@ -27,6 +27,7 @@ class RecipeFilter(filters.FilterSet):
         if value:
             return Recipe.objects.filter(shopping_cart__user=user)
         return Recipe.objects.all()
+
 
 class IngredientFilter(filters.FilterSet):
     name = filters.CharFilter(field_name="name", lookup_expr='icontains')
