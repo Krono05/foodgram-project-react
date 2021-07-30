@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .filters import RecipeFilter
+from .filters import RecipeFilter, IngredientFilter
 from .models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                      ShoppingCart, Tag)
 from .permissions import AdminOrAuthorOrReadOnly
@@ -30,6 +30,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = [AllowAny, ]
     filter_backends = [filters.SearchFilter, ]
+    filter_class = IngredientFilter
     search_fields = ('name', )
     pagination_class = None
 
