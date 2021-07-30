@@ -5,7 +5,7 @@ from rest_framework import serializers
 from foodgram.settings import RECIPES_LIMIT
 from recipes.models import Recipe
 
-from .models import Follow
+from .models import Follow, CustomUser
 
 User = get_user_model()
 
@@ -110,6 +110,18 @@ class ShowFollowSerializer(serializers.ModelSerializer):
     def get_recipes_count(self, obj):
         return obj.recipes.count()
 
+
+class FollowerRecipeSerializerDetails(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+    def get_image(self, obj):
+        req = self.context['request']
+        photo_url = obj.image.url
+        return req.build_absolute_uri(photo_url)
 
 
 class FollowSerializer(serializers.ModelSerializer):
