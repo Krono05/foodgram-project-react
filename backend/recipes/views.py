@@ -21,6 +21,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [AllowAny, ]
+    pagination_class = None
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -28,8 +29,9 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = [AllowAny, ]
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, ]
     search_fields = ('name', )
+    pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -37,7 +39,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = [AdminOrAuthorOrReadOnly, ]
     filter_backends = [DjangoFilterBackend, ]
-    filterset_class = RecipeFilter
+    #filterset_class = RecipeFilter
+    filter_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
