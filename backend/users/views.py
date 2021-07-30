@@ -1,6 +1,7 @@
-from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, status
+from djoser.serializers import UserSerializer
+from rest_framework import status
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,12 +9,10 @@ from rest_framework.views import APIView
 from .models import CustomUser, Follow
 from .serializers import FollowSerializer
 
-User = get_user_model()
 
-
-class ListFollowViewSet(generics.ListAPIView):
+class ListFollowViewSet(ListAPIView):
     queryset = CustomUser.objects.all()
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = (IsAuthenticated, )
     serializer_class = FollowSerializer
 
     def get_serializer_context(self):
@@ -27,33 +26,20 @@ class ListFollowViewSet(generics.ListAPIView):
 
 
 class FollowViewSet(APIView):
-    """
-    APIView with post and delete options.
-    Used to create and delete Follow objects.
-    """
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = (IsAuthenticated, )
 
     def get(self, request, author_id):
-        user = request.user
-        follow_exist = Follow.objects.filter(
-            user=user,
-            author__id=author_id
-        ).exists()
-        if user.id == author_id or follow_exist:
-            return Response(
-                {"Fail": "Ошибка"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        data = {
-            'user': user.id,
-            'author': author_id
-        }
-        serializer = FollowSerializer(data=data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        author = get_object_or_404(CustomUser, id=author_id)
+        Follow.objects.get_or_create(user=request.user, author=author)
+        serializer = UserSerializer(author)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, author_id):
-        obj = get_object_or_404(Follow, user=request.user, author=author_id)
-        obj.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        author = CustomUser.objects.get(id=author_id)
+        try:
+            Follow.objects.get(
+                user=request.user,
+                author=author).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
