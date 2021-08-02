@@ -95,15 +95,15 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'tags', 'author', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
-       
+  
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
         for item in ingredients:
             if int(item['amount']) < 0:
                 raise serializers.ValidationError(
                     {'ingredients': (
-                        'Убедитесь, что количества ингредиента больше 0'
-                        )
+                                    'Убедитесь, что количества ингредиента больше 0'
+                                    )
                     }
                 )
         return data
@@ -125,10 +125,10 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             ingredient_model = ingredient['id']
             amount = ingredient['amount']
             IngredientInRecipe.objects.create(
-                    ingredient=ingredient_model,
-                    recipe=recipe,
-                    amount=amount
-                )
+                ingredient=ingredient_model,
+                recipe=recipe,
+                amount=amount
+            )
         for tag in tags_data:
             TagsInRecipe.objects.create(recipe=recipe, tag=tag)
         return recipe
