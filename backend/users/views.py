@@ -48,7 +48,7 @@ class FollowViewSet(APIView):
             'user': user.id,
             'author': author_id
         }
-        serializer = ShowFollowSerializer(data=data, context={'request': request})
+        serializer = FollowSerializer(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
