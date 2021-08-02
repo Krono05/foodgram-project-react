@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate, get_user_model
-from djoser.serializers import UserSerializer as BaseUserSerializer
+from djoser.serializers import UserSerializer 
 from rest_framework import serializers
 
 from foodgram.settings import RECIPES_LIMIT
@@ -10,7 +10,7 @@ from .models import CustomUser, Follow
 User = get_user_model()
 
 
-class UserSerializerModified(BaseUserSerializer):
+class UserSerializerModified(UserSerializer):
     """
     Describes modified UserSerializer, which includes
     'is_subscribed' field
@@ -18,7 +18,7 @@ class UserSerializerModified(BaseUserSerializer):
 
     is_subscribed = serializers.SerializerMethodField()
 
-    class Meta(BaseUserSerializer.Meta):
+    class Meta(UserSerializer.Meta):
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name', 'is_subscribed')
 
