@@ -95,15 +95,14 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'tags', 'author', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
-  
+
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
         for item in ingredients:
             if int(item['amount']) < 0:
                 raise serializers.ValidationError(
                     {'ingredients': (
-                                    'Убедитесь, что количества ингредиента больше 0'
-                                    )
+                        'Убедитесь, что количества ингредиента больше 0')
                     }
                 )
         return data
