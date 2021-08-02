@@ -162,23 +162,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                 'request': self.context.get('request')
             }).data
 
-    # def validate(self, data):
-    #     ingredients = self.initial_data.get('ingredients')
-    #     for item in ingredients:
-    #         if int(item['amount']) < 0:
-    #             raise serializers.ValidationError(
-    #                 {'ingredients': (
-    #                     'Убедитесь, что значение количества ингредиента больше 0')
-    #                 }
-    #             )
-    #     return data
-    # def validate_cooking_time(self, data):
-    #     if data <= 0:
-    #         raise serializers.ValidationError(
-    #             'Введите целое число больше 0 для времени готовки'
-    #         )
-    #     return data
-
 
 class FavoriteSerializer(serializers.ModelSerializer):
     recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
