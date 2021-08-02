@@ -145,7 +145,7 @@ REST_FRAMEWORK = {
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
 }
 
-RECIPES_LIMIT = 6
+#RECIPES_LIMIT = 6
 
 
 DJOSER = {
