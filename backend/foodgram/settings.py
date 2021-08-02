@@ -151,6 +151,7 @@ RECIPES_LIMIT = 6
 DJOSER = {
     'SERIALIZERS': {'user': 'users.serializers.UserSerializerModified'},
     'HIDE_USERS': False,
-    'PERMISSIONS': {'user_list': ['rest_framework.permissions.AllowAny']},
+    'PERMISSIONS': {'user_list': ['rest_framework.permissions.AllowAny'],
+                    'user': ['rest_framework.permissions.AllowAny']},
     'LOGIN_FIELD': 'email',
 }
