@@ -125,38 +125,69 @@ class FollowerRecipeSerializerDetails(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
-    is_subscribed = serializers.SerializerMethodField()
+    # recipes = serializers.SerializerMethodField()
+    # recipes_count = serializers.SerializerMethodField()
+    # is_subscribed = serializers.SerializerMethodField()
+
+    # class Meta:
+    #     model = CustomUser
+    #     fields = (
+    #         'email',
+    #         'id',
+    #         'username',
+    #         'first_name',
+    #         'last_name',
+    #         'is_subscribed',
+    #         'recipes',
+    #         'recipes_count'
+    #     )
+
+    # def get_recipes(self, obj):
+    #     return FollowerRecipeSerializerDetails(
+    #         obj.recipe_author.all(),
+    #         many=True,
+    #         context=dict(request=self.context['request'])
+    #     ).data
+
+    # def get_recipes_count(self, obj):
+    #     return obj.recipe_author.count()
+
+    # def get_is_subscribed(self, obj):
+    #     request = self.context['request']
+    #     return (
+    #         False
+    #         if request is None or request.user.is_anonymous
+    #         else
+    #         Follow.objects.filter(user=request.user, author=obj).exists()
+    #     )
+    queryset = User.objects.all()
+    user = serializers.PrimaryKeyRelatedField(queryset=queryset)
+    author = serializers.PrimaryKeyRelatedField(queryset=queryset)
 
     class Meta:
-        model = CustomUser
+        model = Follow
         fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'recipes',
-            'recipes_count'
+            'user',
+            'author'
         )
 
-    def get_recipes(self, obj):
-        return FollowerRecipeSerializerDetails(
-            obj.recipe_author.all(),
-            many=True,
-            context=dict(request=self.context['request'])
-        ).data
+    def validate(self, data):
+        user = self.context.get('request').user
+        author_id = data['author'].id
+        follow_exist = Follow.objects.filter(
+            user=user,
+            author__id=author_id
+        ).exists()
 
-    def get_recipes_count(self, obj):
-        return obj.recipe_author.count()
+        if self.context.get('request').method == 'GET':
+            if user.id == author_id or follow_exist:
+                raise serializers.ValidationError(
+                    'Подписка существует')
+        return data
 
-    def get_is_subscribed(self, obj):
-        request = self.context['request']
-        return (
-            False
-            if request is None or request.user.is_anonymous
-            else
-            Follow.objects.filter(user=request.user, author=obj).exists()
-        )
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return ShowFollowSerializer(
+            instance.author,
+            context=context).data
