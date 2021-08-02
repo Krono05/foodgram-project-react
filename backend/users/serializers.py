@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate, get_user_model
-from djoser.serializers import UserSerializer 
+from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
 from foodgram.settings import RECIPES_LIMIT
