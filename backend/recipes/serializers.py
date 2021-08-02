@@ -103,7 +103,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {'ingredients': (
                         'Убедитесь, что количества ингредиента больше 0')
-                    }
+                     }
                 )
         return data
 
