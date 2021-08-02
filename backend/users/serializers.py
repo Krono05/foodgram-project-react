@@ -125,6 +125,7 @@ class FollowerRecipeSerializerDetails(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    """
     # recipes = serializers.SerializerMethodField()
     # recipes_count = serializers.SerializerMethodField()
     # is_subscribed = serializers.SerializerMethodField()
@@ -160,6 +161,7 @@ class FollowSerializer(serializers.ModelSerializer):
     #         else
     #         Follow.objects.filter(user=request.user, author=obj).exists()
     #     )
+    """
     queryset = User.objects.all()
     user = serializers.PrimaryKeyRelatedField(queryset=queryset)
     author = serializers.PrimaryKeyRelatedField(queryset=queryset)
