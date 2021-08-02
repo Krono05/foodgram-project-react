@@ -89,6 +89,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(),
         slug_field='id'
     )
+    cooking_time = serializers.IntegerField()
 
     class Meta:
         model = Recipe
