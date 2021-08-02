@@ -5,8 +5,6 @@ from .views import FollowViewSet, ListFollowViewSet
 
 urlpatterns = [
 
-    path('', include('djoser.urls')),
-    re_path(r'^auth/', include('djoser.urls.authtoken')),
     path(
         'users/subscriptions/',
         ListFollowViewSet.as_view(),
@@ -17,4 +15,6 @@ urlpatterns = [
         FollowViewSet.as_view(),
         name='subscribe'
     ),
+    path('', include('djoser.urls')),
+    re_path(r'^auth/', include('djoser.urls.authtoken')),
 ]
