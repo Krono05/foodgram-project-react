@@ -58,6 +58,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class FavoriteViewSet(APIView):
 
     permission_classes = [IsAuthenticated, ]
+    filter_class = RecipeFilter
 
     def get(self, request, recipe_id):
         user = request.user
