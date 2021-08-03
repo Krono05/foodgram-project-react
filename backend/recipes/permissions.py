@@ -1,24 +1,19 @@
-from rest_framework.permissions import SAFE_METHODS, BasePermission
-
-CHANGE_METHODS = ['PUT', 'PATCH', 'DELETE']
+from rest_framework import permissions
 
 
-class AdminOrAuthorOrReadOnly(BasePermission):
+class AdminOrAuthorOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        user = request.user
-        return (
-            user.is_authenticated if request.method == 'POST'
-            else True
-        )
+        if request.method == 'POST':
+            return request.user.is_authenticated
+        return True
 
     def has_object_permission(self, request, view, obj):
-        user = request.user
-        return (
-            user == obj.author
-            or user.is_superuser
-            or user.is_admin()
-            if request.method in CHANGE_METHODS and not user.is_anonymous
-            else
-            request.method in SAFE_METHODS
-        )
+        if (request.method in ['PUT', 'PATCH', 'DELETE']
+                and not request.user.is_anonymous):
+            return (
+                    request.user == obj.author
+                    or request.user.is_superuser
+                    or request.user.is_admin()
+            )
+        return request.method in permissions.SAFE_METHODS
