@@ -5,6 +5,7 @@ from .models import Ingredient, Recipe
 
 User = get_user_model()
 
+
 class RecipeFilter(filters.FilterSet):
     tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug'

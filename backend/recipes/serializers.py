@@ -132,30 +132,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             TagsInRecipe.objects.create(recipe=recipe, tag=tag)
         return recipe
 
-#    def update(self, instance, validated_data):
-#        tags_data = validated_data.pop('tags')
-#        ingredient_data = validated_data.pop('ingredients')
-        #TagsInRecipe.objects.filter(recipe=instance).delete()
-        #for tag in tags_data:
-        #    TagsInRecipe.objects.create(
-        #        recipe=instance,
-        #        tag=tag
-        #    )
-#        instance.tags.set(tags_data)
-#       IngredientInRecipe.objects.filter(recipe=instance).delete()
-#        for new_ingredient in ingredient_data:
-#            IngredientInRecipe.objects.create(
-#                ingredient=new_ingredient['id'],
-#                recipe=instance,
-#                amount=new_ingredient['amount']
-#            )
-#        instance.name = validated_data.pop('name')
-#        instance.text = validated_data.pop('text')
-#        if validated_data.get('image') is not None:
-#            instance.image = validated_data.pop('image')
-#        instance.cooking_time = validated_data.pop('cooking_time')
-#        instance.save()
-#        return instance
     def update(self, instance, validated_data):
         tags_data = validated_data.pop('tags')
         ingredient_data = validated_data.pop('ingredients')
@@ -163,7 +139,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         IngredientInRecipe.objects.filter(recipe=instance).delete()
         instance.name = validated_data.pop('name')
         instance.text = validated_data.pop('text')
-        #instance.image = validated_data.pop('image')
         if validated_data.get('image') is not None:
             instance.image = validated_data.get('image')
         instance.cooking_time = validated_data.pop('cooking_time')
