@@ -1,7 +1,8 @@
-from django_filters import rest_framework as filters
 from django.contrib.auth import get_user_model
+from django_filters import rest_framework as filters
 
 from .models import Ingredient, Recipe
+
 User = get_user_model()
 
 class RecipeFilter(filters.FilterSet):
@@ -15,7 +16,7 @@ class RecipeFilter(filters.FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ( 'is_favorited', 'tags', 'author',  'is_in_shopping_cart', )
+        fields = ('is_favorited', 'tags', 'author', 'is_in_shopping_cart', )
 
     def get_favorite(self, queryset, name, value):
         user = self.request.user
