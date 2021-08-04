@@ -40,7 +40,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     queryset = Recipe.objects.all()
     permission_classes = [AdminOrAuthorOrReadOnly, ]
-    filter_backends = [DjangoFilterBackend, ]
     filter_class = RecipeFilter
     pagination_class = CartPaginator
 
