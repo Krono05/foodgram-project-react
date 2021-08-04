@@ -22,7 +22,7 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=200,
         unique=True,
-        verbose_name='Название тега',
+        verbose_name='Название тегов',
     )
     hexcolor = models.CharField(
         max_length=7,
